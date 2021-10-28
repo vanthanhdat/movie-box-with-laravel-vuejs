@@ -40,7 +40,7 @@
                             </li>
                             <li class="nav-item" :class="this.$route.path === '/logout' ? 'active' : '' "  v-if="$store.getters.isLoggedIn "
                                 @click="$router.push({ name: 'logout' })">
-                                <span class="nav-link">Logout</span>
+                                <span class="nav-link">Logout ({{$store.getters.getUser.name}})</span>
                             </li> 
                         </ul>
                     </div>

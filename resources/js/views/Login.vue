@@ -98,13 +98,11 @@ export default {
                 password: this.password
             })
             .then((response) => {     
-                this.$store.dispatch('setUserAccess', {
-                    access_token: response.data.data.access_token
-                }) 
+                this.$store.dispatch('setUserAccess', response.data.data) 
                 if (typeof this.$route.query.redirect != 'undefined') {
                     this.$router.push({ path: this.$route.query.redirect })
                 }else{
-                    this.$router.push({ name: 'movies', params: {
+                    this.$router.push({ name: 'home', params: {
                         propsMessage: 'Welcome Back!!! You are logged in'
                     } })
                 }

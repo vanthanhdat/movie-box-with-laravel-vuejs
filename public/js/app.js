@@ -2563,9 +2563,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
         email: this.email,
         password: this.password
       }).then(function (response) {
-        _this2.$store.dispatch('setUserAccess', {
-          access_token: response.data.data.access_token
-        });
+        _this2.$store.dispatch('setUserAccess', response.data.data);
 
         if (typeof _this2.$route.query.redirect != 'undefined') {
           _this2.$router.push({
@@ -2573,7 +2571,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
           });
         } else {
           _this2.$router.push({
-            name: 'movies',
+            name: 'home',
             params: {
               propsMessage: 'Welcome Back!!! You are logged in'
             }
@@ -50177,7 +50175,11 @@ var render = function() {
                           },
                           [
                             _c("span", { staticClass: "nav-link" }, [
-                              _vm._v("Logout")
+                              _vm._v(
+                                "Logout (" +
+                                  _vm._s(_vm.$store.getters.getUser.name) +
+                                  ")"
+                              )
                             ])
                           ]
                         )
@@ -69941,11 +69943,19 @@ __webpack_require__.r(__webpack_exports__);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
 var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
   state: {
-    accessToken: localStorage.getItem('access_token') || null
+    accessToken: localStorage.getItem('access_token') || null,
+    userProfile: localStorage.getItem('user_profile') || {}
   },
   getters: {
     isLoggedIn: function isLoggedIn(state) {
       return state.accessToken !== null && state.accessToken !== '';
+    },
+    getUser: function getUser(state) {
+      if (typeof state.userProfile == 'string') {
+        return JSON.parse(state.userProfile);
+      } else {
+        return state.userProfile;
+      }
     }
   },
   actions: {
@@ -69986,11 +69996,11 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
       });
     },
     setUserAccess: function setUserAccess(context, payload) {
-      localStorage.setItem('access_token', payload.access_token);
-      context.commit('mutateAccessToken', payload.access_token);
+      context.commit('mutateAccessToken', payload);
     },
     unsetUserAccess: function unsetUserAccess(context, payload) {
       localStorage.removeItem('access_token');
+      localStorage.removeItem('user_profile');
       context.commit('mutateAccessToken', null);
     },
     postComment: function postComment(context, payload) {
@@ -70028,8 +70038,16 @@ var store = new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
     }
   },
   mutations: {
-    mutateAccessToken: function mutateAccessToken(state, accessToken) {
-      state.accessToken = accessToken;
+    mutateAccessToken: function mutateAccessToken(state, userProfile) {
+      if (userProfile != null) {
+        localStorage.setItem('access_token', userProfile.access_token);
+        localStorage.setItem('user_profile', JSON.stringify(userProfile));
+        state.accessToken = userProfile.access_token;
+        state.userProfile = userProfile;
+      } else {
+        state.accessToken = null;
+        state.userProfile = {};
+      }
     }
   }
 });

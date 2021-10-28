@@ -6,12 +6,20 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
     state: {
-        accessToken: localStorage.getItem('access_token') || null
+        accessToken: localStorage.getItem('access_token') || null,
+        userProfile : localStorage.getItem('user_profile') || {},
     },
 
     getters: {
        isLoggedIn(state) { 
         return state.accessToken !== null && state.accessToken !== ''
+       },
+        getUser (state){
+            if (typeof state.userProfile == 'string') {
+                return JSON.parse(state.userProfile);   
+            }else{
+                return state.userProfile;
+            }
        }
     },
 
@@ -62,11 +70,11 @@ export const store = new Vuex.Store({
             })
         },
         setUserAccess(context, payload) {
-            localStorage.setItem('access_token', payload.access_token)
-            context.commit('mutateAccessToken', payload.access_token)
+            context.commit('mutateAccessToken', payload)
         },
         unsetUserAccess(context, payload) {
             localStorage.removeItem('access_token')
+            localStorage.removeItem('user_profile')
             context.commit('mutateAccessToken', null)
         }, 
         postComment(context, payload) {
@@ -111,9 +119,17 @@ export const store = new Vuex.Store({
     },
 
     mutations: {
-        mutateAccessToken(state, accessToken) { 
-            state.accessToken = accessToken
-        }
+        mutateAccessToken(state, userProfile) { 
+            if (userProfile != null) {
+                localStorage.setItem('access_token', userProfile.access_token);
+                localStorage.setItem('user_profile', JSON.stringify(userProfile));
+                state.accessToken = userProfile.access_token;
+                state.userProfile = userProfile;
+            }else{
+                state.accessToken = null;
+                state.userProfile = {};
+            }
+        },
     },
     
 })
